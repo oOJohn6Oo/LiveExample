@@ -12,9 +12,18 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+
     buildTypes {
+        getByName("debug") {
+            isMinifyEnabled = true
+            isDebuggable = false
+            lint{
+                checkReleaseBuilds = false
+            }
+        }
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isDebuggable = false
         }
     }
     buildFeatures{
