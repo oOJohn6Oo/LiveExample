@@ -1,5 +1,8 @@
 package io.agora.live.livegame.android.ui
 
+import android.Manifest
+import android.view.SurfaceView
+import android.widget.Toast
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -9,38 +12,91 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionRequired
+import com.google.accompanist.permissions.rememberPermissionState
 import io.agora.live.livegame.android.R
+import io.agora.live.livegame.android.util.DataState
 import io.agora.live.livegame.android.util.systemBarsPadding
 import io.agora.live.livegame.bean.RoomInfo
-import kotlin.random.Random
+import io.agora.live.livegame.log
 
+@ExperimentalPermissionsApi
 @Preview
 @Composable
 fun PreviewCreateScreen() {
-    CreateScreen({}) {
+    CreateScreen(popBack = {}) {
 
     }
 }
 
+@ExperimentalPermissionsApi
 @Composable
-fun CreateScreen(popBack: () -> Unit, nav2Studio: (createdRoom: RoomInfo) -> Unit) {
+fun CreateScreen(roomViewModel: CreateRoomViewModel = viewModel(), popBack: () -> Unit, nav2Studio: (createdRoom: RoomInfo) -> Unit) {
+    "CreateScreen".log()
+
+    val pendingRoomInfo = roomViewModel.pendingRoomInfo.value
+
+    val createState = roomViewModel.createState.value
+
+    if (createState is DataState.Success){
+        roomViewModel.createState.value = DataState.None
+        nav2Studio(pendingRoomInfo)
+    }else if (createState is DataState.Failure){
+        Toast.makeText(
+            LocalContext.current,
+            "Create error: ${createState.exception.message}",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
     ProvideWindowInsets {
 
         Box {
 
-//        AndroidView()
+            val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
+
+            PermissionRequired(
+                permissionState = cameraPermissionState,
+                permissionNotGrantedContent = {
+                    "permissionNotGrantedContent".log()
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
+                            Text(stringResource(R.string.request_permission))
+                        }
+                    }
+                },
+                permissionNotAvailableContent = {
+                    "permissionNotAvailableContent".log()
+                    Text(
+                        stringResource(R.string.camera_permission_denied),
+                        modifier = Modifier.fillMaxSize(),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                content = {
+                    // SurfaceView
+                    AndroidView(factory = {
+                        SurfaceView(it).apply {
+//                            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                            roomViewModel.setupLocalPreview(this)
+                        }
+                    }, modifier = Modifier.fillMaxSize(),)
+                })
 
             Column(
                 Modifier.systemBarsPadding(
@@ -49,10 +105,6 @@ fun CreateScreen(popBack: () -> Unit, nav2Studio: (createdRoom: RoomInfo) -> Uni
                 ).fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                val studioNameList = stringArrayResource(R.array.studio_name_list)
-
-                var currentName by remember { mutableStateOf(studioNameList[Random.nextInt(Int.MAX_VALUE) % studioNameList.size]) }
 
                 var animateStart by remember { mutableStateOf(false) }
 
@@ -64,8 +116,12 @@ fun CreateScreen(popBack: () -> Unit, nav2Studio: (createdRoom: RoomInfo) -> Uni
                     }
                 )
 
+                // Close Button
                 IconButton(onClick = popBack, modifier = Modifier.align(Alignment.Start)) {
-                    Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.nav_back))
+                    Icon(
+                        Icons.Rounded.ArrowBack,
+                        contentDescription = stringResource(R.string.nav_back)
+                    )
                 }
 
                 // 描述块
@@ -87,14 +143,15 @@ fun CreateScreen(popBack: () -> Unit, nav2Studio: (createdRoom: RoomInfo) -> Uni
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = currentName,
+                            text = pendingRoomInfo.name,
                             style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold),
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(onClick = {
-                            animateStart = true
-                            currentName =
-                                studioNameList[Random.nextInt(Int.MAX_VALUE) % studioNameList.size]
+                            if(!animateStart) {
+                                roomViewModel.randomRoomName()
+                                animateStart = true
+                            }
                         }) {
                             Icon(
                                 Icons.Default.Refresh,
@@ -107,10 +164,11 @@ fun CreateScreen(popBack: () -> Unit, nav2Studio: (createdRoom: RoomInfo) -> Uni
 
                 Spacer(Modifier.weight(1f))
 
+                // 底部"开始直播"按钮
                 Button(
                     shape = CircleShape,
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
-                    onClick = {nav2Studio(RoomInfo("","",""))},
+                    onClick = { roomViewModel.createRoom() },
                     modifier = Modifier.padding(bottom = 12.dp)
                 ) {
                     Text(text = stringResource(R.string.start_live))

@@ -33,4 +33,6 @@
     <string name="start_live">Start Live</string>
     <string name="title_studio_name">Studio Name: </string>
     <string name="nav_back">Back</string>
+    <string name="request_permission">Request Permission</string>
+    <string name="camera_permission_denied">Preview Not Available\nCamera Permission Denied</string>
 </resources>

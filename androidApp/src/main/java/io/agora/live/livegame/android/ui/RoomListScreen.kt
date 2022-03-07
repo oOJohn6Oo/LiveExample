@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.BrushPainter
@@ -29,148 +28,116 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import io.agora.live.livegame.android.R
-import io.agora.live.livegame.android.ui.theme.BtnEndColor
-import io.agora.live.livegame.android.ui.theme.BtnStartColor
+import io.agora.live.livegame.android.theme.BtnEndColor
+import io.agora.live.livegame.android.theme.BtnStartColor
+import io.agora.live.livegame.android.util.DataState
 import io.agora.live.livegame.android.util.systemBarsPadding
 import io.agora.live.livegame.bean.RoomInfo
+import io.agora.live.livegame.log
 
 
 @ExperimentalFoundationApi
 @Preview
 @Composable
 fun PreviewRoomListScreen() {
-    val testData = listOf(
-        RoomInfo("id1", "name1", "ownerId1"),
-        RoomInfo("id2", "name2", "ownerId2"),
-        RoomInfo("id3", "name3", "ownerId3")
-    )
-    RoomListScreen(testData, {}) {}
+    RoomListScreen("HAHA", nav2Room = {}) {}
 }
 
 @ExperimentalFoundationApi
 @Composable
 fun RoomListScreen(
-    roomInfoList: List<RoomInfo>,
+    sceneName: String,
+    roomListViewModel: RoomListViewModel = viewModel(),
     nav2Room: (roomInfo: RoomInfo) -> Unit,
     nav2Create: () -> Unit,
 ) {
+    "RoomListScreen".log()
+
+    val roomListState = roomListViewModel.viewState.value
+
     ProvideWindowInsets(false) {
 
         val density = LocalDensity.current
 
-        val lazeListState = rememberLazyListState()
-
-        val inset = LocalWindowInsets.current.systemBars
+        val insets = LocalWindowInsets.current.systemBars
 
         var appBarHeight by remember { mutableStateOf(0.dp) }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            LazyVerticalGrid(
-                state = lazeListState,
-                cells = GridCells.Fixed(2),
-                contentPadding = rememberInsetsPaddingValues(
-                    inset,
-                    applyTop = false,
-                    additionalTop = appBarHeight + 12.dp,
-                    additionalStart = 12.dp,
-                    additionalEnd = 12.dp,
-                ),
-//                contentPadding = rememberInsetsPaddingValues(
-//                    inset,
-//                    applyTop = false,
-//                    additionalTop = appBarHeight + 12.dp,
-//                    additionalStart = 12.dp,
-//                    additionalEnd = 12.dp,
-//                ),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                items(roomInfoList) { roomInfo ->
-                    RoomItem(roomInfo, nav2Room)
+
+            val lazeListState = rememberLazyListState()
+
+            when (roomListState) {
+
+                // Content
+                is DataState.Success, is DataState.Failure -> {
+                    val roomInfoList: List<RoomInfo> =
+                        if (roomListState is DataState.Success) (roomListState as DataState.Success).data else listOf()
+                    LazyVerticalGrid(
+                        state = lazeListState,
+                        cells = GridCells.Fixed(2),
+                        contentPadding = rememberInsetsPaddingValues(
+                            insets,
+                            applyTop = false,
+                            additionalTop = appBarHeight + 12.dp,
+                            additionalStart = 12.dp,
+                            additionalEnd = 12.dp,
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(roomInfoList) { roomInfo ->
+                            RoomItem(roomInfo, nav2Room)
+                        }
+                    }
                 }
+                // Loading
+                is DataState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                else -> {}
             }
 
-            TopAppBar(
+            LiftableTopAppBar(
                 modifier = Modifier.onSizeChanged { size ->
                     appBarHeight = with(density) { size.height.toDp() }
-                },
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = lazeListState.elevation,
-                contentPadding = rememberInsetsPaddingValues(
-                    inset,
-                    applyStart = false,
+                }, lazeListState, contentPadding = rememberInsetsPaddingValues(
+                    insets,
                     applyTop = true,
-                    applyEnd = false,
-                    applyBottom = false
-                ),
-            ) {
-                Text(
-                    stringResource(R.string.app_name),
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(
-                        color = MaterialTheme.colors.onBackground,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+                    applyBottom = false,
+                ), sceneName
+            )
 
+            GradientFAB(modifier = Modifier.align(Alignment.BottomEnd), nav2Create)
 
-            val fabSource by remember { mutableStateOf(MutableInteractionSource()) }
-            val fabElevation = fabSource.collectIsPressedAsState()
-
-            Surface(
-                modifier = Modifier.systemBarsPadding(
-                    applyTop = false,
-                    applyStart = false,
-                    additionalEnd = 12.dp,
-                ).size(56.dp)
-                    .align(Alignment.BottomEnd).clickable(
-                        interactionSource = fabSource,
-                        indication = null,
-                        onClick = nav2Create
-                    ),
-                shape = CircleShape,
-                color = MaterialTheme.colors.background,
-                contentColor = MaterialTheme.colors.background,
-                elevation = if (fabElevation.value) 6.dp else 2.dp
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Image(
-                        BrushPainter(
-                            Brush.linearGradient(
-                                listOf(
-                                    BtnStartColor,
-                                    BtnEndColor
-                                )
-                            )
-                        ), contentDescription = "",
-                    )
-                    Icon(
-                        Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.create_room),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
         }
 
+
     }
+}
+
+@Composable
+fun RoomListContent() {
+
 }
 
 @Preview
 @Composable
 fun PreviewRoomItem() {
-    RoomItem(RoomInfo("a1b1c1", "哈哈", "user-1231")) {}
+    RoomItem(RoomInfo("a1b1c1", "哈哈", "user-1231", System.currentTimeMillis())) {}
 }
 
 @Composable
@@ -209,6 +176,52 @@ fun RoomItem(roomInfo: RoomInfo, nav2Room: (roomInfo: RoomInfo) -> Unit) {
                     style = TextStyle(fontSize = 14.sp),
                 )
             }
+        }
+    }
+}
+
+
+/**
+ * 渐变色 FAB
+ */
+@Composable
+fun GradientFAB(modifier: Modifier = Modifier, onclick: () -> Unit) {
+    val fabSource by remember { mutableStateOf(MutableInteractionSource()) }
+    val fabElevation = fabSource.collectIsPressedAsState()
+
+    Surface(
+        modifier = modifier.systemBarsPadding(
+            applyTop = false,
+            applyStart = false,
+            additionalBottom = 12.dp,
+            additionalEnd = 12.dp,
+        ).size(56.dp).clickable(
+            interactionSource = fabSource,
+            indication = null,
+            onClick = onclick
+        ),
+        shape = CircleShape,
+        color = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.background,
+        elevation = if (fabElevation.value) 6.dp else 2.dp
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Image(
+                BrushPainter(
+                    Brush.linearGradient(
+                        listOf(
+                            BtnStartColor,
+                            BtnEndColor
+                        )
+                    )
+                ),
+                contentDescription = "",
+            )
+            Icon(
+                Icons.Rounded.Add,
+                contentDescription = stringResource(R.string.create_room),
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

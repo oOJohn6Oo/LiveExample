@@ -1,0 +1,8 @@
+${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks.sh
+${PODS_ROOT}/AgoraRtcEngine_iOS_Preview/AgoraPvcExtension.framework
+${PODS_ROOT}/AgoraRtcEngine_iOS_Preview/AgoraRtcCryptoLoader.framework
+${PODS_ROOT}/AgoraRtcEngine_iOS_Preview/AgoraRtcKit.framework
+${PODS_ROOT}/AgoraRtcEngine_iOS_Preview/AgoraVideoProcessExtension.framework
+${PODS_ROOT}/AgoraRtcEngine_iOS_Preview/AgoraVideoSegmentationExtension.framework
+${PODS_ROOT}/AgoraRtcEngine_iOS_Preview/Agoraffmpeg.framework
+${PODS_ROOT}/AgoraRtcEngine_iOS_Preview/BeQuic.framework

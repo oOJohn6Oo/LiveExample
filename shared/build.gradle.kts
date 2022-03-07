@@ -20,6 +20,9 @@ kotlin {
         framework {
             baseName = "shared"
         }
+//        pod("AgoraRtcEngine_iOS_Preview"){
+//            version = "4.0.0.preview.5"
+//        }
     }
     
     sourceSets {
@@ -31,6 +34,8 @@ kotlin {
         }
         val androidMain by getting{
             dependencies {
+                implementation("com.github.AgoraIO-Community:SyncManager-Android:1.0.4")
+                implementation("com.github.agorabuilder:agora-full-preview:4.0.0.preview.5")
             }
         }
         val androidTest by getting

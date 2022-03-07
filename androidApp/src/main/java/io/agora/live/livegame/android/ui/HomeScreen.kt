@@ -11,7 +11,7 @@ import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -33,21 +33,19 @@ import io.agora.live.livegame.bean.LiveScene
 
 @Preview
 @Composable
-fun PreviewMainScreen(){
-    MainScreen {  }
+fun PreviewMainScreen() {
+    HomeScreen { }
 }
 
 @Composable
-fun MainScreen(nav2Rooms:(scene:String)->Unit) {
+fun HomeScreen(nav2RoomList: (scene: Int) -> Unit) {
     // type 未设置的默认不展示
     val sceneNameList = LocalContext.current.resources.getStringArray(R.array.scenes_name)
     val sceneDescList = LocalContext.current.resources.getStringArray(R.array.scenes_desc)
     val scenes = mutableListOf<LiveScene>()
 
     sceneNameList.forEachIndexed { index, s ->
-        scenes.add(LiveScene(s, sceneDescList[index]))
-        scenes.add(LiveScene(s, sceneDescList[index]))
-        scenes.add(LiveScene(s, sceneDescList[index]))
+        scenes.add(LiveScene(index, s, sceneDescList[index]))
     }
 
     ProvideWindowInsets(false) {
@@ -69,9 +67,11 @@ fun MainScreen(nav2Rooms:(scene:String)->Unit) {
                 Text(
                     stringResource(R.string.app_name),
                     textAlign = TextAlign.Center,
-                    style = TextStyle(color = MaterialTheme.colors.onBackground,
+                    style = TextStyle(
+                        color = MaterialTheme.colors.onBackground,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp),
+                        fontSize = 24.sp
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -81,7 +81,7 @@ fun MainScreen(nav2Rooms:(scene:String)->Unit) {
                 contentPadding = rememberInsetsPaddingValues(inset, applyTop = false)
             ) {
                 items(scenes) { scene ->
-                    HomeBadgeItem(scene, nav2Rooms)
+                    HomeBadgeItem(scene, nav2RoomList)
                 }
             }
         }
@@ -96,11 +96,11 @@ val LazyListState.elevation
     else AppBarDefaults.TopAppBarElevation
 
 @Composable
-fun HomeBadgeItem(scene: LiveScene, nav2Rooms: (scene: String) -> Unit) {
+fun HomeBadgeItem(scene: LiveScene, nav2RoomList: (sceneIndex: Int) -> Unit) {
     Box(
         Modifier.fillMaxWidth().wrapContentHeight()
             .padding(horizontal = 24f.dp, vertical = 12f.dp)
-            .clickable{nav2Rooms(scene.name)},
+            .clickable { nav2RoomList(scene.index) },
     ) {
         Image(
             painterResource(R.drawable.app_banner_live_game),
@@ -120,6 +120,32 @@ fun HomeBadgeItem(scene: LiveScene, nav2Rooms: (scene: String) -> Unit) {
             style = TextStyle(fontSize = 14.sp),
             modifier = Modifier.align(BiasAlignment(0.6f, 0.2f))
                 .wrapContentSize(),
+        )
+    }
+}
+
+@Composable
+fun LiftableTopAppBar(
+    modifier: Modifier = Modifier,
+    lazeListState: LazyListState,
+    contentPadding: PaddingValues,
+    title: String
+) {
+    TopAppBar(
+        modifier = modifier,
+        backgroundColor = MaterialTheme.colors.background,
+        elevation = lazeListState.elevation,
+        contentPadding = contentPadding,
+    ) {
+        Text(
+            title,
+            textAlign = TextAlign.Center,
+            style = TextStyle(
+                color = MaterialTheme.colors.onBackground,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            ),
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

@@ -1,4 +1,4 @@
-package io.agora.live.livegame.android.ui.theme
+package io.agora.live.livegame.android.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

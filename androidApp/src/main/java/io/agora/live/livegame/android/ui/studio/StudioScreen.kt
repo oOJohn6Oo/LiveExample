@@ -1,5 +1,6 @@
 package io.agora.live.livegame.android.ui
 
+import android.view.SurfaceView
 import android.webkit.WebView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,10 +25,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.insets.systemBarsPadding
 import io.agora.live.livegame.android.R
 import io.agora.live.livegame.android.util.overlayColor
 import io.agora.live.livegame.android.util.systemBarsPadding
+import io.agora.live.livegame.log
 
 @Preview
 @Composable
@@ -43,13 +44,16 @@ fun PreviewStudioScreen() {
 
 @Composable
 fun StudioScreen(messages: List<String>) {
+    "StudioScreen".log()
     ProvideWindowInsets {
         Box {
-            // 直播画面
-//        AndroidView()
             // 游戏界面
             AndroidView(factory = { context ->
                 WebView(context)
+            })
+            // 直播画面
+            AndroidView(modifier = Modifier.fillMaxSize(), factory = {
+                SurfaceView(it)
             })
             // 控制按钮层
             Column(

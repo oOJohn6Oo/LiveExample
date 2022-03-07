@@ -1,16 +1,23 @@
 PODS:
+  - AgoraRtcEngine_iOS_Preview (4.0.0.preview.5)
   - shared (1.0)
 
 DEPENDENCIES:
+  - AgoraRtcEngine_iOS_Preview (= 4.0.0.preview.5)
   - shared (from `../shared`)
+
+SPEC REPOS:
+  trunk:
+    - AgoraRtcEngine_iOS_Preview
 
 EXTERNAL SOURCES:
   shared:
     :path: "../shared"
 
 SPEC CHECKSUMS:
+  AgoraRtcEngine_iOS_Preview: 59896a76a09cc04aa1426c2f1964d5dbe6cc9717
   shared: 7b4d6aa8aa7ada5f9dae3229e2524d316cb9f063
 
-PODFILE CHECKSUM: f282da88f39e69507b0a255187c8a6b644477756
+PODFILE CHECKSUM: f1c2c77809ed4bf1b393c11a9b3241a3c6d567f1
 
 COCOAPODS: 1.11.2

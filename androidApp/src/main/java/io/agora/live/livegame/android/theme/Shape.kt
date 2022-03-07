@@ -1,4 +1,4 @@
-package io.agora.live.livegame.android.ui.theme
+package io.agora.live.livegame.android.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

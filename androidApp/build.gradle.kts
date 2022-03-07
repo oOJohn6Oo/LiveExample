@@ -15,8 +15,8 @@ android {
 
     buildTypes {
         getByName("debug") {
-            isMinifyEnabled = true
-            isDebuggable = false
+            isMinifyEnabled = false
+            isDebuggable = true
             lint{
                 checkReleaseBuilds = false
             }
@@ -57,13 +57,12 @@ dependencies {
 //    accompanist
     implementation("com.google.accompanist:accompanist-insets:0.23.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.23.1")
 
     // AndroidX
     implementation ("androidx.activity:activity-compose:1.4.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.google.code.gson:gson:2.9.0")
 
-
-//    Agora
-    implementation("com.github.AgoraIO-Community:SyncManager-Android:1.0.4")
-    implementation("com.github.agorabuilder:agora-full-preview:4.0.0.preview.5")
 }
