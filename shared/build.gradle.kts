@@ -24,7 +24,7 @@ kotlin {
 //            version = "4.0.0.preview.5"
 //        }
     }
-    
+
     sourceSets {
         val commonMain by getting
         val commonTest by getting {
@@ -35,7 +35,7 @@ kotlin {
         val androidMain by getting{
             dependencies {
                 implementation("com.github.AgoraIO-Community:SyncManager-Android:1.0.4")
-                implementation("com.github.agorabuilder:agora-full-preview:4.0.0.preview.5")
+                implementation("com.github.zegolibrary:express-video:2.16.3")
             }
         }
         val androidTest by getting

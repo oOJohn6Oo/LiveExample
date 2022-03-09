@@ -1,8 +1,7 @@
-package io.agora.live.livegame.android.ui
+package io.agora.live.livegame.android.ui.studio
 
 import android.view.SurfaceView
 import android.webkit.WebView
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,12 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.google.accompanist.insets.ProvideWindowInsets
-import io.agora.live.livegame.android.R
+import io.agora.live.livegame.LocalData
+import io.agora.live.livegame.android.ui.RoomListViewModel
+import io.agora.live.livegame.android.util.DataState
 import io.agora.live.livegame.android.util.overlayColor
 import io.agora.live.livegame.android.util.systemBarsPadding
 import io.agora.live.livegame.log
@@ -34,26 +36,36 @@ import io.agora.live.livegame.log
 @Composable
 fun PreviewStudioScreen() {
     StudioScreen(
-        listOf(
+        messages = listOf(
             "AA: Aruba, Jamaga, wo I want to take ya",
             "AA: Bermuda, Bahama, come on pretty mama",
             "Kelago, Montego, wo I want to take you to the Kokomo",
-        )
+        ), navBack = {}
     )
 }
 
 @Composable
-fun StudioScreen(messages: List<String>) {
-    "StudioScreen".log()
+fun StudioScreen(studioViewModel: StudioViewModel = viewModel(), messages: List<String>, navBack:()->Unit) {
+
+    // Exit when error happens in VM
+    var viewState = studioViewModel.viewState.value
+    if(viewState is DataState.Failure) {
+        viewState = DataState.None
+        navBack()
+    }
+
     ProvideWindowInsets {
         Box {
             // 游戏界面
-            AndroidView(factory = { context ->
-                WebView(context)
-            })
+//            AndroidView(factory = { context ->
+//                WebView(context)
+//            })
             // 直播画面
             AndroidView(modifier = Modifier.fillMaxSize(), factory = {
-                SurfaceView(it)
+                SurfaceView(it).apply {
+                    studioViewModel.previewView(this)
+                    setZOrderOnTop(false)
+                }
             })
             // 控制按钮层
             Column(
@@ -99,8 +111,8 @@ fun StudioTopLayout(studioName: String) {
             ).padding(4.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(R.drawable.app_banner_livepk),
+                AsyncImage(
+                    model = RoomListViewModel.liveUser.avatar,
                     modifier = Modifier.size(26.dp).clip(CircleShape),
                     contentDescription = "",
                     contentScale = ContentScale.Crop,
@@ -114,8 +126,8 @@ fun StudioTopLayout(studioName: String) {
 
         // 房间成员信息
         for (i in 0..3) {
-            Image(
-                painter = painterResource(R.drawable.app_banner_livepk),
+            AsyncImage(
+                model = LocalData.localAvatar[i],
                 modifier = Modifier.size(26.dp).clip(CircleShape),
                 contentDescription = "",
                 contentScale = ContentScale.Crop,

@@ -1,4 +1,4 @@
-package io.agora.live.livegame.android.ui
+package io.agora.live.livegame.android.ui.create
 
 import android.view.SurfaceView
 import androidx.compose.runtime.MutableState
@@ -7,8 +7,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.agora.live.livegame.BaseStateCallback
+import io.agora.live.livegame.LocalData
 import io.agora.live.livegame.RTC
 import io.agora.live.livegame.RTM
+import io.agora.live.livegame.android.ui.RoomListViewModel
 import io.agora.live.livegame.android.util.DataState
 import io.agora.live.livegame.bean.RoomInfo
 import kotlinx.coroutines.channels.awaitClose
@@ -27,13 +29,14 @@ class CreateRoomViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     var pendingRoomInfo = mutableStateOf(randomRoom())
     val createState: MutableState<DataState<*>> = mutableStateOf(DataState.None)
 
-
     private fun randomRoom(): RoomInfo {
         val randomName = studioNameList[Random.nextInt(Int.MAX_VALUE) % studioNameList.size]
+        val randomId = Random.nextInt(100_000)
         return RoomInfo(
-            Random.nextInt(Int.MAX_VALUE).toString(),
-            randomName,
+            "live_john_$randomId",
+            "${randomName}_$randomId",
             RoomListViewModel.liveUser.id,
+            LocalData.localCover[Random.nextInt(Int.MAX_VALUE) % LocalData.localCover.size],
             System.currentTimeMillis()
         )
     }
@@ -63,6 +66,6 @@ class CreateRoomViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     }
 
     fun setupLocalPreview(view: SurfaceView) {
-        rtc.previewLocalCamera(view)
+        rtc.previewCamera(view, "")
     }
 }

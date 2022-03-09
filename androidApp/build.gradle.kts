@@ -63,6 +63,8 @@ dependencies {
     implementation ("androidx.activity:activity-compose:1.4.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("com.google.code.gson:gson:2.9.0")
+
+    implementation("io.coil-kt:coil-compose:2.0.0-rc01")
+    implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
 
 }

@@ -32,9 +32,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
+import io.agora.live.livegame.LocalData
 import io.agora.live.livegame.android.R
 import io.agora.live.livegame.android.theme.BtnEndColor
 import io.agora.live.livegame.android.theme.BtnStartColor
@@ -80,7 +82,7 @@ fun RoomListScreen(
                 // Content
                 is DataState.Success, is DataState.Failure -> {
                     val roomInfoList: List<RoomInfo> =
-                        if (roomListState is DataState.Success) (roomListState as DataState.Success).data else listOf()
+                        if (roomListState is DataState.Success) roomListState.data else listOf()
                     LazyVerticalGrid(
                         state = lazeListState,
                         cells = GridCells.Fixed(2),
@@ -137,7 +139,7 @@ fun RoomListContent() {
 @Preview
 @Composable
 fun PreviewRoomItem() {
-    RoomItem(RoomInfo("a1b1c1", "哈哈", "user-1231", System.currentTimeMillis())) {}
+    RoomItem(RoomInfo("a1b1c1", "哈哈", "user-1231", LocalData.localCover[0], System.currentTimeMillis())) {}
 }
 
 @Composable
@@ -153,15 +155,14 @@ fun RoomItem(roomInfo: RoomInfo, nav2Room: (roomInfo: RoomInfo) -> Unit) {
         backgroundColor = MaterialTheme.colors.surface,
         modifier = Modifier.aspectRatio(1f)
             .clickable(interactionSource = source, indication = null) { nav2Room(roomInfo) },
-//            .hoverable(interactionSource = source, true),
         elevation = elevationValue
     ) {
         Box {
-            Image(
+            AsyncImage(
+                model = roomInfo.cover,
                 contentDescription = "",
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.padding(12.dp).fillMaxSize().clip(MaterialTheme.shapes.small),
-                painter = ColorPainter(MaterialTheme.colors.secondary)
             )
             Column(
                 verticalArrangement = Arrangement.Bottom,

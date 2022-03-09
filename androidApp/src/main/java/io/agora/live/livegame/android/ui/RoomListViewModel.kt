@@ -8,10 +8,14 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.addAdapter
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.agora.live.livegame.*
 import io.agora.live.livegame.android.util.DataState
+import io.agora.live.livegame.android.util.NullToEmptyString
 import io.agora.live.livegame.android.util.dataStore
+import io.agora.live.livegame.android.util.fromJsonToClass
 import io.agora.live.livegame.bean.LiveUser
 import io.agora.live.livegame.bean.RoomInfo
 import kotlinx.coroutines.*
@@ -27,9 +31,11 @@ class RoomListViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    companion object{
+    companion object {
         lateinit var liveUser: LiveUser
-        val gson: Gson = Gson().newBuilder().create()
+        val moshi = Moshi.Builder()
+            .add(NullToEmptyString)
+            .add(KotlinJsonAdapterFactory()).build()
     }
 
     private val channel: LiveChannel = LiveChannel.values()[savedStateHandle["sceneIndex"] ?: 0]
@@ -51,10 +57,12 @@ class RoomListViewModel(
                     LocalData.localAvatar[id % LocalData.localAvatar.size]
                 )
                 application.dataStore.edit { edit ->
-                    edit[userKey] = gson.toJson(liveUser)
+                    edit[userKey] = moshi.adapter(LiveUser::class.java).toJson(liveUser)
                 }
             } else {
-                liveUser = gson.fromJson(it,LiveUser::class.java)
+                it.fromJsonToClass(LiveUser::class.java)?.also {
+                    liveUser = it
+                }
             }
         }.launchIn(viewModelScope)
 
@@ -80,10 +88,17 @@ class RoomListViewModel(
     fun fetchRoomList() {
         callbackFlow {
             "fetch start ${Thread.currentThread().name}".log()
-            val getRoomListCallback = object : BaseStateCallback<List<RoomInfo>> {
-                override fun onSuccess(data: List<RoomInfo>) {
+            val getRoomListCallback = object : BaseStateCallback<List<String>> {
+                override fun onSuccess(data: List<String>) {
                     "fetch success".log()
-                    trySend(DataState.Success(data))
+                    val res:List<RoomInfo> = data.mapNotNull {
+                        it.fromJsonToClass(RoomInfo::class.java)
+                    }
+                    res.forEach {
+                        it.toString().log()
+                    }
+
+                    trySend(DataState.Success(res))
                 }
 
                 override fun onFailure(exception: Throwable) {

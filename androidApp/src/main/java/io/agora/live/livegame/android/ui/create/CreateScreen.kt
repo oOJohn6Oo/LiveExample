@@ -1,4 +1,4 @@
-package io.agora.live.livegame.android.ui
+package io.agora.live.livegame.android.ui.create
 
 import android.Manifest
 import android.view.SurfaceView
@@ -26,9 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionRequired
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.*
 import io.agora.live.livegame.android.R
 import io.agora.live.livegame.android.util.DataState
 import io.agora.live.livegame.android.util.systemBarsPadding
@@ -46,19 +44,25 @@ fun PreviewCreateScreen() {
 
 @ExperimentalPermissionsApi
 @Composable
-fun CreateScreen(roomViewModel: CreateRoomViewModel = viewModel(), popBack: () -> Unit, nav2Studio: (createdRoom: RoomInfo) -> Unit) {
+fun CreateScreen(
+    roomViewModel: CreateRoomViewModel = viewModel(),
+    popBack: () -> Unit,
+    nav2Studio: (createdRoom: RoomInfo) -> Unit
+) {
     "CreateScreen".log()
+
+    val currentContext = LocalContext.current
 
     val pendingRoomInfo = roomViewModel.pendingRoomInfo.value
 
     val createState = roomViewModel.createState.value
 
-    if (createState is DataState.Success){
+    if (createState is DataState.Success) {
         roomViewModel.createState.value = DataState.None
         nav2Studio(pendingRoomInfo)
-    }else if (createState is DataState.Failure){
+    } else if (createState is DataState.Failure) {
         Toast.makeText(
-            LocalContext.current,
+            currentContext,
             "Create error: ${createState.exception.message}",
             Toast.LENGTH_SHORT
         ).show()
@@ -68,34 +72,50 @@ fun CreateScreen(roomViewModel: CreateRoomViewModel = viewModel(), popBack: () -
 
         Box {
 
-            val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
+            val permissionsState = rememberMultiplePermissionsState(
+                listOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+                )
+            )
 
-            PermissionRequired(
-                permissionState = cameraPermissionState,
-                permissionNotGrantedContent = {
+            LaunchedEffect("permissionsState") {
+                if (!permissionsState.allPermissionsGranted)
+                    permissionsState.launchMultiplePermissionRequest()
+
+            }
+
+
+            PermissionsRequired(
+                multiplePermissionsState = permissionsState,
+                permissionsNotGrantedContent = {
                     "permissionNotGrantedContent".log()
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
-                            Text(stringResource(R.string.request_permission))
+                        Button(onClick = { permissionsState.launchMultiplePermissionRequest() }) {
+                            Text(stringResource(R.string.request_permissions))
                         }
                     }
                 },
-                permissionNotAvailableContent = {
+                permissionsNotAvailableContent = {
                     "permissionNotAvailableContent".log()
-                    Text(
-                        stringResource(R.string.camera_permission_denied),
-                        modifier = Modifier.fillMaxSize(),
-                        textAlign = TextAlign.Center
-                    )
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            stringResource(R.string.camera_permission_denied),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 },
                 content = {
                     // SurfaceView
-                    AndroidView(factory = {
-                        SurfaceView(it).apply {
+                    AndroidView(
+                        factory = {
+                            SurfaceView(it).apply {
 //                            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                            roomViewModel.setupLocalPreview(this)
-                        }
-                    }, modifier = Modifier.fillMaxSize(),)
+                                roomViewModel.setupLocalPreview(this)
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 })
 
             Column(
@@ -120,7 +140,8 @@ fun CreateScreen(roomViewModel: CreateRoomViewModel = viewModel(), popBack: () -
                 IconButton(onClick = popBack, modifier = Modifier.align(Alignment.Start)) {
                     Icon(
                         Icons.Rounded.ArrowBack,
-                        contentDescription = stringResource(R.string.nav_back)
+                        contentDescription = stringResource(R.string.nav_back),
+                        tint = MaterialTheme.colors.background
                     )
                 }
 
@@ -148,7 +169,7 @@ fun CreateScreen(roomViewModel: CreateRoomViewModel = viewModel(), popBack: () -
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(onClick = {
-                            if(!animateStart) {
+                            if (!animateStart) {
                                 roomViewModel.randomRoomName()
                                 animateStart = true
                             }
@@ -168,7 +189,15 @@ fun CreateScreen(roomViewModel: CreateRoomViewModel = viewModel(), popBack: () -
                 Button(
                     shape = CircleShape,
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
-                    onClick = { roomViewModel.createRoom() },
+                    onClick = {
+                        if (permissionsState.allPermissionsGranted)
+                            roomViewModel.createRoom()
+                        else Toast.makeText(
+                            currentContext,
+                            currentContext.getString(R.string.permissions_denied_in_need_of_live),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
                     modifier = Modifier.padding(bottom = 12.dp)
                 ) {
                     Text(text = stringResource(R.string.start_live))

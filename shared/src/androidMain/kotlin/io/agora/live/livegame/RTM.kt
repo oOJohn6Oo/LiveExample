@@ -7,23 +7,20 @@ actual class RTM actual constructor() {
 
     internal actual val callbackMap: HashMap<String, BaseStateCallback<*>> = hashMapOf()
 
-    actual fun getRoomList(callback: BaseStateCallback<List<RoomInfo>>) {
+    actual fun getRoomList(callback: BaseStateCallback<List<String>>) {
         callbackMap["getRoomList"] = callback
         try {
             Sync.Instance().getScenes(object : Sync.DataListCallback {
                 override fun onSuccess(result: MutableList<IObject>?) {
-                    val res: List<RoomInfo> = result?.let { receivedData ->
-                        val tempResList = mutableListOf<RoomInfo>()
+                    val res: List<String> = result?.let { receivedData ->
+                        val tempResList = mutableListOf<String>()
                         receivedData.forEach { data ->
-                            val tempRoom: RoomInfo? = data.toObject(RoomInfo::class.java)
-                            if (tempRoom != null)
-                                tempResList.add(tempRoom)
+                            tempResList.add(data.toString())
                         }
-                        tempResList.sortWith { o1, o2 -> (o1.createTime - o2.createTime).toInt() }
                         tempResList.toList()
                     } ?: listOf()
                     callbackMap["getRoomList"]?.let {
-                        (it as BaseStateCallback<List<RoomInfo>>).onSuccess(res)
+                        (it as BaseStateCallback<List<String>>).onSuccess(res)
                     }
                 }
                 override fun onFail(exception: SyncManagerException) {
@@ -53,6 +50,7 @@ actual class RTM actual constructor() {
         val map = mapOf(
             "name" to roomInfo.name,
             "ownerId" to roomInfo.ownerId,
+            "cover" to roomInfo.cover,
             "createTime" to roomInfo.createTime.toString(),
         )
 
