@@ -82,7 +82,6 @@ fun CreateScreen(
             LaunchedEffect("permissionsState") {
                 if (!permissionsState.allPermissionsGranted)
                     permissionsState.launchMultiplePermissionRequest()
-
             }
 
 

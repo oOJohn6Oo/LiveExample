@@ -21,7 +21,7 @@
         <item>Kokomo</item>
     </string-array>
 
-    <string name="app_name">AgoraGame</string>
+    <string name="app_name">DemoGame</string>
 
 <!--    room list-->
     <string name="display_id">ID  : %s</string>

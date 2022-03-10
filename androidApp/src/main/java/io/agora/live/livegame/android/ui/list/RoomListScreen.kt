@@ -86,7 +86,6 @@ fun RoomListScreen(
                     val roomInfoList: List<RoomInfo> =
                         if (roomListState is DataState.Success) roomListState.data else listOf()
                     LazyVerticalGrid(
-                        modifier = Modifier.fillMaxSize().background(color = Color.Red),
                         state = lazeListState,
                         cells = GridCells.Fixed(2),
                         contentPadding = rememberInsetsPaddingValues(
