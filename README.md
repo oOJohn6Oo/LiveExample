@@ -1,8 +1,9 @@
 # Game Example Using Moden Architecture
 
-- [x] Kotlin
-- [x] Compose
-- [x] ViewModel
+- [x] Kotlin Flow
+- [x] Kotlin Coroutine
+- [x] JetPack Compose
+- [x] Android ViewModel
 - [x] DarkMode
 - [x] WindowInsets
 - [x] Animation
@@ -12,7 +13,7 @@ This branch contains UI&Logic implementation
 Using Agora RTM to store the Room data.
 Using Zego RTC to implemente LIVE scene.
 
-More you can check [HERE](https://www.jianshu.com/p/ac7ee488df86)
+For more info you can check [HERE](https://www.jianshu.com/p/35c4fa49a939)
 
 ## Run
 
