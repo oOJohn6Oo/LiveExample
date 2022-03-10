@@ -1,4 +1,4 @@
-package io.agora.live.livegame.android.ui
+package io.agora.live.livegame.android.ui.list
 
 import android.app.Application
 import androidx.compose.runtime.MutableState
@@ -9,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.addAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.agora.live.livegame.*
 import io.agora.live.livegame.android.util.DataState
@@ -36,6 +35,7 @@ class RoomListViewModel(
         val moshi = Moshi.Builder()
             .add(NullToEmptyString)
             .add(KotlinJsonAdapterFactory()).build()
+
     }
 
     private val channel: LiveChannel = LiveChannel.values()[savedStateHandle["sceneIndex"] ?: 0]
@@ -60,8 +60,8 @@ class RoomListViewModel(
                     edit[userKey] = moshi.adapter(LiveUser::class.java).toJson(liveUser)
                 }
             } else {
-                it.fromJsonToClass(LiveUser::class.java)?.also {
-                    liveUser = it
+                it.fromJsonToClass(LiveUser::class.java)?.also { user->
+                    liveUser = user
                 }
             }
         }.launchIn(viewModelScope)

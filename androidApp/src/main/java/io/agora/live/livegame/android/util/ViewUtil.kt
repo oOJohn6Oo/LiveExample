@@ -16,7 +16,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
-import io.agora.live.livegame.android.ui.RoomListViewModel
+import io.agora.live.livegame.android.ui.list.RoomListViewModel
 
 
 fun <T> String.fromJsonToClass(clazz:Class<T>) : T?= RoomListViewModel.moshi.adapter(clazz).fromJson(this)

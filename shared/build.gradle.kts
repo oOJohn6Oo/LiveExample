@@ -67,4 +67,11 @@ android {
         minSdk = 21
         targetSdk = 31
     }
+    buildTypes {
+        getByName("release"){
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"),"proguard-rules.pro")
+            consumerProguardFile("proguard-rules.pro")
+        }
+    }
 }

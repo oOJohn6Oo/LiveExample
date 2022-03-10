@@ -10,6 +10,11 @@ class SyncAndroidTool {
 
         private var isSyncInit:AtomicBoolean = AtomicBoolean(false)
 
+        /**
+         * 初始化 RTM
+         *
+         * TODO 如何监听 RTM 初始化成功
+         */
         fun initSync(context: Context, channel: LiveChannel){
             "initSync".log()
             val map = HashMap<String, String>()

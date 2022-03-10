@@ -1,8 +1,9 @@
-package io.agora.live.livegame.android.ui
+package io.agora.live.livegame.android.ui.list
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -20,8 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BrushPainter
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -40,6 +41,7 @@ import io.agora.live.livegame.LocalData
 import io.agora.live.livegame.android.R
 import io.agora.live.livegame.android.theme.BtnEndColor
 import io.agora.live.livegame.android.theme.BtnStartColor
+import io.agora.live.livegame.android.ui.LiftableTopAppBar
 import io.agora.live.livegame.android.util.DataState
 import io.agora.live.livegame.android.util.systemBarsPadding
 import io.agora.live.livegame.bean.RoomInfo
@@ -84,6 +86,7 @@ fun RoomListScreen(
                     val roomInfoList: List<RoomInfo> =
                         if (roomListState is DataState.Success) roomListState.data else listOf()
                     LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize().background(color = Color.Red),
                         state = lazeListState,
                         cells = GridCells.Fixed(2),
                         contentPadding = rememberInsetsPaddingValues(
@@ -126,7 +129,6 @@ fun RoomListScreen(
             GradientFAB(modifier = Modifier.align(Alignment.BottomEnd), nav2Create)
 
         }
-
 
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import io.agora.live.livegame.LocalData
 import io.agora.live.livegame.android.R
@@ -37,6 +38,27 @@ import io.agora.live.livegame.bean.LiveScene
 @Composable
 fun PreviewMainScreen() {
     HomeScreen { }
+}
+
+@Composable
+fun TestIMEScreen(title: String, nav2Test: () -> Unit) {
+    ProvideWindowInsets(consumeWindowInsets = true) {
+        Column(
+            modifier = Modifier
+                .navigationBarsWithImePadding()
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            Text(text = title, modifier = Modifier.clickable(onClick = nav2Test))
+            TextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.padding(bottom = 20.dp),
+                placeholder = { Text(text = "some text") }
+            )
+        }
+    }
 }
 
 @Composable
@@ -102,7 +124,7 @@ val LazyListState.elevation
 @Composable
 fun HomeBadgeItem(scene: LiveScene, nav2RoomList: (sceneIndex: Int) -> Unit) {
 
-    Surface (
+    Surface(
         modifier = Modifier.fillMaxWidth().wrapContentHeight()
             .padding(horizontal = 24f.dp, vertical = 12f.dp),
         color = MaterialTheme.colors.surface,
@@ -120,13 +142,17 @@ fun HomeBadgeItem(scene: LiveScene, nav2RoomList: (sceneIndex: Int) -> Unit) {
             )
             Text(
                 text = scene.name,
-                style = TextStyle(color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                style = TextStyle(
+                    color = MaterialTheme.colors.onBackground,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                ),
                 modifier = Modifier.align(BiasAlignment(0.6f, -0.28f))
                     .wrapContentSize(),
             )
             Text(
                 text = scene.desc,
-                style = TextStyle(color = Color.Black, fontSize = 14.sp),
+                style = TextStyle(color = MaterialTheme.colors.onBackground, fontSize = 14.sp),
                 modifier = Modifier.align(BiasAlignment(0.6f, 0.2f))
                     .wrapContentSize(),
             )

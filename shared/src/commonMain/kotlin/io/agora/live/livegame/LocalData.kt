@@ -21,5 +21,5 @@ object LocalData {
         "https://images.unsplash.com/photo-1533231681263-76328007f383?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTV8fHZpZXd8ZW58MHx8MHx8&auto=format&fit=crop&w=900&q=60",
     )
 
-    val bannerURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRudFWWbfnhSeEclpRdhkJUXDKlr7l7TWqZXA&usqp=CAU"
+    val bannerURL = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01c3ae59c1c0e8a801218e18738e19.gif&refer=http%3A%2F%2Fimg.zcool.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1649484536&t=a9d7b80aecb945e6b8f30a9fcca5abf9"
 }

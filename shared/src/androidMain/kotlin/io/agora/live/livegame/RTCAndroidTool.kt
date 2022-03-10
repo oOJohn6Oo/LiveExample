@@ -3,7 +3,9 @@ package io.agora.live.livegame
 import android.app.Application
 import im.zego.zegoexpress.ZegoExpressEngine
 import im.zego.zegoexpress.constants.ZegoScenario
+import im.zego.zegoexpress.entity.ZegoEngineConfig
 import im.zego.zegoexpress.entity.ZegoEngineProfile
+import im.zego.zegoexpress.entity.ZegoLogConfig
 
 class RTCAndroidTool {
 
@@ -20,6 +22,9 @@ class RTCAndroidTool {
                 application = app
 
             }, null)
+            ZegoExpressEngine.setLogConfig(ZegoLogConfig().apply {
+                this.logPath = app.externalCacheDir?.absolutePath?:app.cacheDir.absolutePath
+            })
         }
 
 //        fun initAgoraRTC(context: Context): Boolean {

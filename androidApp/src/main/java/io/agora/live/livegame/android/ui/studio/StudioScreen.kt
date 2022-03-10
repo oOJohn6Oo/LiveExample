@@ -1,7 +1,7 @@
 package io.agora.live.livegame.android.ui.studio
 
 import android.view.SurfaceView
-import android.webkit.WebView
+import android.view.WindowInsetsController
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,26 +12,39 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.*
 import io.agora.live.livegame.LocalData
-import io.agora.live.livegame.android.ui.RoomListViewModel
 import io.agora.live.livegame.android.util.DataState
 import io.agora.live.livegame.android.util.overlayColor
 import io.agora.live.livegame.android.util.systemBarsPadding
+import io.agora.live.livegame.bean.LiveUser
+import io.agora.live.livegame.bean.RoomInfo
 import io.agora.live.livegame.log
 
+@ExperimentalComposeUiApi
 @Preview
 @Composable
 fun PreviewStudioScreen() {
@@ -44,18 +57,36 @@ fun PreviewStudioScreen() {
     )
 }
 
+@ExperimentalComposeUiApi
 @Composable
-fun StudioScreen(studioViewModel: StudioViewModel = viewModel(), messages: List<String>, navBack:()->Unit) {
+fun StudioScreen(
+    studioViewModel: StudioViewModel = viewModel(),
+    messages: List<String>,
+    navBack: () -> Unit
+) {
 
     // Exit when error happens in VM
     var viewState = studioViewModel.viewState.value
-    if(viewState is DataState.Failure) {
+    if (viewState is DataState.Failure) {
         viewState = DataState.None
         navBack()
     }
 
+
+    val liveUser: LiveUser = studioViewModel.localUser
+
+    val currentRoom = studioViewModel.currentRoom
+
     ProvideWindowInsets {
-        Box {
+        Box(Modifier.fillMaxSize()) {
+            var bottomLayoutHeight by remember { mutableStateOf(0.dp) }
+            val textFieldHeight = remember { mutableStateOf(0.dp) }
+            val density = LocalDensity.current
+
+            // used to ensure a TextField is focused when showing keyboard
+            val focusRequester = remember { FocusRequester() }
+            val controller = LocalSoftwareKeyboardController.current
+
             // 游戏界面
 //            AndroidView(factory = { context ->
 //                WebView(context)
@@ -77,18 +108,33 @@ fun StudioScreen(studioViewModel: StudioViewModel = viewModel(), messages: List<
                 )
             ) {
                 // 顶部房间信息部分
-                StudioTopLayout("sdf")
+                StudioTopLayout(roomInfo = currentRoom, liveUser)
                 Spacer(Modifier.weight(1f))
-                // 聊天区域
-                LazyColumn(Modifier.fillMaxWidth()) {
-                    items(messages) { message ->
-                        Text(message)
-                    }
-                }
-                Spacer(Modifier.size(12.dp))
                 // 按钮
-                StudioBottomLayout()
+                StudioBottomLayout(modifier = Modifier.onSizeChanged {
+                    bottomLayoutHeight = with(density) { it.height.toDp() }
+                }, focusRequester, controller, navBack)
             }
+
+            // 聊天区域
+
+            LazyColumn(
+                Modifier.fillMaxWidth().height(200.dp).padding(bottom = bottomLayoutHeight + 12.dp)
+                    .navigationBarsWithImePadding()
+                    .align(Alignment.BottomStart),
+                //                Modifier.padding(rememberInsetsPaddingValues(bottomInsets, applyTop = false, additionalBottom = bottomLayoutHeight)).fillMaxWidth().height(400.dp).align(Alignment.BottomStart).background(color = Color.Red),
+            ) {
+                items(messages) { message ->
+                    Text(message)
+                }
+            }
+
+            BottomTextField(
+                modifier = Modifier.fillMaxWidth()
+                    .navigationBarsPadding().align(Alignment.BottomStart).alpha(if(LocalWindowInsets.current.ime.isVisible) 1f else 0f),
+                textFieldHeight,
+                focusRequester = focusRequester
+            )
         }
     }
 }
@@ -96,11 +142,19 @@ fun StudioScreen(studioViewModel: StudioViewModel = viewModel(), messages: List<
 @Preview
 @Composable
 fun PreviewTopLayout() {
-    StudioTopLayout("糖糖")
+    StudioTopLayout(
+        RoomInfo(
+            "1",
+            "name_1",
+            "123",
+            LocalData.localCover[0],
+            System.currentTimeMillis()
+        ), LiveUser("123", "name_123", LocalData.localAvatar[0])
+    )
 }
 
 @Composable
-fun StudioTopLayout(studioName: String) {
+fun StudioTopLayout(roomInfo: RoomInfo, owner: LiveUser) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         // 房间名称
         Surface(
@@ -112,13 +166,14 @@ fun StudioTopLayout(studioName: String) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(
-                    model = RoomListViewModel.liveUser.avatar,
+                    model = owner.avatar,
                     modifier = Modifier.size(26.dp).clip(CircleShape),
                     contentDescription = "",
                     contentScale = ContentScale.Crop,
                 )
                 Spacer(Modifier.size(4.dp))
-                Text(studioName)
+                Text(roomInfo.name)
+                Spacer(Modifier.size(4.dp))
             }
         }
 
@@ -144,33 +199,54 @@ fun StudioTopLayout(studioName: String) {
             ).padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Person, contentDescription = "")
+                Icon(Icons.Default.Person, contentDescription = "", modifier = Modifier.size(18.dp))
                 Text("10")
             }
         }
     }
 }
 
+@ExperimentalComposeUiApi
 @Preview
 @Composable
 fun PreviewStudioBottomLayout() {
-    StudioBottomLayout()
+    StudioBottomLayout(Modifier, FocusRequester(), LocalSoftwareKeyboardController.current){}
 }
 
+@ExperimentalComposeUiApi
 @Composable
-fun StudioBottomLayout() {
+fun StudioBottomLayout(
+    modifier: Modifier,
+    focusRequester: FocusRequester,
+    controller: SoftwareKeyboardController?,
+    navBack: () -> Unit
+) {
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+
+        val elementSize = 36.dp
 
         val overlayModifier = Modifier.background(
             color = MaterialTheme.overlayColor(0.12f),
             shape = CircleShape,
-        )
+        ).size(elementSize)
 
-        IconButton(onClick = {}, modifier = overlayModifier.weight(1f)) {
-            Text("Say something")
+        TextButton(
+            onClick = {
+                focusRequester.requestFocus()
+                controller?.show()
+            },
+            modifier = Modifier.weight(1f).height(elementSize),
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = MaterialTheme.overlayColor(0.12f),
+                contentColor = MaterialTheme.colors.background
+            ),
+        ) {
+            Text("Say something...", modifier = Modifier.fillMaxWidth())
         }
         Spacer(Modifier.size(8.dp))
         IconButton(onClick = {}, modifier = overlayModifier) {
@@ -187,9 +263,35 @@ fun StudioBottomLayout() {
 
         Spacer(Modifier.size(8.dp))
 
-        IconButton(onClick = {}, modifier = overlayModifier) {
+        IconButton(onClick = navBack, modifier = overlayModifier) {
             Icon(Icons.Default.Close, contentDescription = "")
         }
 
+    }
+}
+
+@Composable
+fun BottomTextField(
+    modifier: Modifier,
+    textFieldHeight: MutableState<Dp>,
+    focusRequester: FocusRequester
+) {
+    var value by remember { mutableStateOf("123123123") }
+
+    val density = LocalDensity.current
+
+    Box(
+        modifier = modifier,
+    ) {
+        TextField(value,
+            onValueChange = { value = it },
+            maxLines = 3,
+            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
+                .onFocusChanged {
+                    "onFocusChanged-> ${it.hasFocus}".log()
+                }
+                .wrapContentSize().onSizeChanged {
+                    textFieldHeight.value = with(density) { it.height.toDp() }
+                })
     }
 }

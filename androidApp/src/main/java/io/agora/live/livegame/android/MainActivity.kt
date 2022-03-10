@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.stringArrayResource
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
@@ -17,10 +18,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import io.agora.live.livegame.android.theme.LiveGameTheme
-import io.agora.live.livegame.android.ui.create.CreateScreen
 import io.agora.live.livegame.android.ui.HomeScreen
-import io.agora.live.livegame.android.ui.RoomListScreen
-import io.agora.live.livegame.android.ui.RoomListViewModel
+import io.agora.live.livegame.android.ui.create.CreateScreen
+import io.agora.live.livegame.android.ui.list.RoomListScreen
+import io.agora.live.livegame.android.ui.list.RoomListViewModel
 import io.agora.live.livegame.android.ui.studio.StudioScreen
 import io.agora.live.livegame.android.ui.studio.StudioViewModel
 import io.agora.live.livegame.bean.RoomInfo
@@ -34,6 +35,7 @@ object RallyPage {
     const val Studio = "studio"
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @ExperimentalPermissionsApi
 class MainActivity : ComponentActivity() {
@@ -46,6 +48,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalPermissionsApi
 @ExperimentalFoundationApi
 @Composable
@@ -60,6 +63,7 @@ fun LiveGameApp() {
     }
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalPermissionsApi
 @ExperimentalFoundationApi
 @Composable

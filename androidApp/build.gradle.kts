@@ -1,9 +1,20 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     kotlin("android")
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file("/Users/lq/release.keystore")
+            val property = gradleLocalProperties(project.rootDir)
+            storePassword = property["keystore.storePassword"] as String
+            keyAlias = property["keystore.alias"] as String
+            keyPassword = property["keystore.keyPassword"] as String
+        }
+    }
     compileSdk = 31
     defaultConfig {
         applicationId = "io.agora.live.livegame.android"
@@ -11,6 +22,7 @@ android {
         targetSdk = 31
         versionCode = 1
         versionName = "1.0"
+        signingConfig = signingConfigs.getByName("release")
     }
 
     buildTypes {
@@ -23,7 +35,7 @@ android {
         }
         getByName("release") {
             isMinifyEnabled = true
-            isDebuggable = false
+            isDebuggable = true
         }
     }
     buildFeatures{
@@ -55,8 +67,11 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.4.1")
 
 //    accompanist
+    // 处理状态栏、导航栏高度
     implementation("com.google.accompanist:accompanist-insets:0.23.1")
+    // 处理状态栏、导航栏颜色
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
+    // 处理权限
     implementation("com.google.accompanist:accompanist-permissions:0.23.1")
 
     // AndroidX
@@ -66,5 +81,4 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.0.0-rc01")
     implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
-
 }
