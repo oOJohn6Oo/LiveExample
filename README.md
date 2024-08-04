@@ -1,32 +1,29 @@
-# Game Example Using Moden Architecture
+# Kotlin Multiplatform app template
 
-- [x] Kotlin Flow
-- [x] Kotlin Coroutine
-- [x] JetPack Compose
-- [x] Android ViewModel
-- [x] DarkMode
-- [x] WindowInsets
-- [x] Animation
+[![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-This branch contains UI&Logic implementation
+This is a basic Kotlin Multiplatform app template for Android and iOS. It includes shared business logic and data handling, and a shared UI implementation using Compose Multiplatform.
 
-Using Agora RTM to store the Room data.
-Using Zego RTC to implemente LIVE scene.
+> The template is also available [with native UI written in Jetpack Compose and SwiftUI](https://github.com/kotlin/KMP-App-Template-Native).
+>
+> The [`amper` branch](https://github.com/Kotlin/KMP-App-Template/tree/amper) showcases the same project configured with [Amper](https://github.com/JetBrains/amper).
 
-For more info you can check [HERE](https://www.jianshu.com/p/35c4fa49a939)
+![Screenshots of the app](images/screenshots.png)
 
-## Run
+### Technologies
 
-> Since it's a KMM project, Cocoapods is needed.
+The data displayed by the app is from [The Metropolitan Museum of Art Collection API](https://metmuseum.github.io/).
 
-Go to [AppConfig](./shared/src/commonMain/kotlin/io/agora/live/livegame/AppConfig.kt)
-Fill all the `APP_ID` and `APP_TOKEN`.
+The app uses the following multiplatform dependencies in its implementation:
 
-## ScreenShot
+- [Compose Multiplatform](https://jb.gg/compose) for UI
+- [Ktor](https://ktor.io/) for networking
+- [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) for JSON handling
+- [Kamel](https://github.com/Kamel-Media/Kamel) for image loading
+- [Koin](https://github.com/InsertKoinIO/koin) for dependency injection
+- [Voyager](https://github.com/adrielcafe/voyager) for navigation and screen models
 
-||||
-|---|---|---|
-|<img src="./screenshot/Page_DemoGame.webp" width="200" alt="Home"/>|<img src="./screenshot/Page_List.webp" width="200" alt="List"/>|<img src="./screenshot/Page_List_Dark.webp" width="200" alt="List_Dark"/>|
-|<img src="./screenshot/Page_Create.webp" width="200" alt="Create"/>|<img src="./screenshot/Page_Studio.webp" width="200" alt="Studio"/>||
-
-
+> These are just some of the possible libraries to use for these tasks with Kotlin Multiplatform,
+> and their usage here isn't a strong recommendation for these specific libraries over the available alternatives.
+> You can find a wide variety of curated multiplatform libraries in the [kmp-awesome](https://github.com/terrakok/kmp-awesome) repository.

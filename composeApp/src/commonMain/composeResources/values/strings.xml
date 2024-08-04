@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="label_title">Title</string>
+    <string name="label_artist">Artist</string>
+    <string name="label_date">Date</string>
+    <string name="label_dimensions">Dimensions</string>
+    <string name="label_medium">Medium</string>
+    <string name="label_department">Department</string>
+    <string name="label_repository">Repository</string>
+    <string name="label_credits">Credits</string>
+
+    <string name="back">Back</string>
+
+    <string name="no_data_available">No data available</string>
+
+
+    <string-array name="scenes_name">
+        <item>GamePKLive</item>
+        <item>GameComLive</item>
+        <item>Game1v1Live</item>
+    </string-array>
+    <string-array name="scenes_desc">
+        <item>GamePKLive desc</item>
+        <item>GameComLive desc</item>
+        <item>Game1v1Live desc</item>
+    </string-array>
+
+    <string-array name="studio_name_list">
+        <item>Aruba</item>
+        <item>Jamaica</item>
+        <item>Bermuda</item>
+        <item>Bahama</item>
+        <item>Key Largo</item>
+        <item>Montego</item>
+        <item>Kokomo</item>
+    </string-array>
+
+    <string name="app_name">DemoGame</string>
+
+    <!--    room list-->
+    <string name="display_id">ID  : %1$s</string>
+    <string name="display_name">Name: %1$s</string>
+    <string name="create_room">Create Room</string>
+
+    <!--    create room-->
+    <string name="desc_random_studio_name">Random A Studio Name</string>
+    <string name="start_live">Start Live</string>
+    <string name="title_studio_name">Studio Name: </string>
+    <string name="nav_back">Back</string>
+    <string name="request_permissions">Request Permissions</string>
+    <string name="camera_permission_denied">Preview Not Available\nCamera Permission Denied</string>
+    <string name="permissions_denied_in_need_of_live">Camera and MicroPhone is needed to start a Live</string>
+
+</resources>

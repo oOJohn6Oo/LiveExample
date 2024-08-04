@@ -1,11 +1,33 @@
+rootProject.name = "LiveExample"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
-        google()
-        gradlePluginPortal()
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
-rootProject.name = "LiveGame"
-include(":androidApp")
-include(":shared")
+dependencyResolutionManagement {
+    repositories {
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
+        mavenCentral()
+//        maven("https://storage.zego.im/maven")
+        maven("https://jitpack.io")
+    }
+}
+
+include(":composeApp")
