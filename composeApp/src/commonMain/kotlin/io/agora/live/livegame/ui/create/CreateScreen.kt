@@ -52,8 +52,6 @@ private fun CreateContent(
     popBack: () -> Unit,
     nav2Studio: (createdRoom: RoomInfo) -> Unit
 ) {
-    Platform.logD("lq", "CreateScreen")
-
     val viewState = createViewModel.createState.value
 
     val pendingRoom = createViewModel.pendingRoomInfo.value

@@ -101,6 +101,9 @@ data class RoomListScreen(val sceneIndex: Int) : Screen {
             nav2Create = {
                 navigator.push(CreateScreen(nameList))
             },
+            onBack = {
+                navigator.pop()
+            },
             refreshRoomList = {
                 roomListViewModel.fetchRoomList()
             })
@@ -114,6 +117,7 @@ private fun RoomListContent(
     refreshRoomList: () -> Unit,
     nav2Room: (roomInfo: RoomInfo) -> Unit,
     nav2Create: () -> Unit,
+    onBack: ()->Unit,
 ) {
     val density = LocalDensity.current
 
@@ -173,6 +177,7 @@ private fun RoomListContent(
             modifier = Modifier.onSizeChanged { size ->
                 appBarHeight = with(density) { size.height.toDp() }
             },
+            onClickNavIcon = onBack,
             elevation = lazeListState.elevation,
             contentPadding = insetsTopSafeDrawing().asPaddingValues(),
             title = sceneName
